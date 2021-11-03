@@ -1,0 +1,91 @@
+apiVersion: v1
+policies:
+  - name: Staging
+    isDefault: true
+    rules:
+      - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+        messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant “version surprises” in the future
+      - identifier: CRONJOB_INVALID_SCHEDULE_VALUE
+        messageOnFailure: 'Incorrect value for key `schedule` - the (cron) schedule expressions is not valid and therefor, will not work as expected'
+      - identifier: WORKLOAD_INVALID_LABELS_VALUE
+        messageOnFailure: Incorrect value for key(s) under `labels` - the vales syntax is not valid so it will not be accepted by the Kuberenetes engine
+      - identifier: WORKLOAD_INCORRECT_RESTARTPOLICY_VALUE_ALWAYS
+        messageOnFailure: Incorrect value for key `restartPolicy` - any other value than `Always` is not supported by this resource
+      - identifier: HPA_MISSING_MAXREPLICAS_KEY
+        messageOnFailure: Missing property object `maxReplicas` - the value should be within the accepted boundaries recommended by the organization
+      - identifier: WORKLOAD_INCORRECT_NAMESPACE_VALUE_DEFAULT
+        messageOnFailure: Incorrect value for key `namespace` - use an explicit namespace instead of the default one (`default`)
+      - identifier: DEPLOYMENT_INCORRECT_REPLICAS_VALUE
+        messageOnFailure: Incorrect value for key `replicas` - don't relay on a single pod to do all of the work. Running 2 or more replicas will increase the availability of the service
+      - identifier: K8S_DEPRECATED_APIVERSION_1.16
+        messageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.16)
+      - identifier: K8S_DEPRECATED_APIVERSION_1.17
+        messageOnFailure: Incorrect value for key `apiVersion` - the version you are trying to use is not supported by the Kubernetes cluster version (>=1.17)
+      - identifier: CONTAINERS_INCORRECT_PRIVILEGED_VALUE_TRUE
+        messageOnFailure: Incorrect value for key `privileged` - this mode will allow the container the same access as processes running on the host
+      - identifier: CRONJOB_MISSING_CONCURRENCYPOLICY_KEY
+        messageOnFailure: Missing property object `concurrencyPolicy` - the behavior will be more deterministic if jobs won't run concurrently
+      - identifier: HPA_MISSING_MINREPLICAS_KEY
+        messageOnFailure: 'Missing property object `minReplicas` - the value should be within 3 to 5 pods. Please contact @AnaisUrlichs for further information. '
+      - identifier: SERVICE_INCORRECT_TYPE_VALUE_NODEPORT
+        messageOnFailure: 'Incorrect value for key `type` - `NodePort` will open a port on all nodes where it can be reached by the network external to the cluster. Please use ClusterIP instead. Contact @AnaisUrlichs for further information. '
+  - name: Prod
+    rules:
+      - identifier: CONTAINERS_MISSING_IMAGE_VALUE_VERSION
+        messageOnFailure: Incorrect value for key `image` - specify an image version to avoid unpleasant “version surprises” in the future
+      - identifier: K8S_INCORRECT_KIND_VALUE_POD
+        messageOnFailure: Incorrect value for key `kind` - raw pod won't be rescheduled in the event of a node failure
+      - identifier: CONTAINERS_MISSING_MEMORY_REQUEST_KEY
+        messageOnFailure: Missing property object `requests.memory` - value should be within the accepted boundaries recommended by the organization.
+      - identifier: CONTAINERS_MISSING_CPU_REQUEST_KEY
+        messageOnFailure: Missing property object `requests.cpu` - value should be within the accepted boundaries recommended by the organization
+      - identifier: CONTAINERS_MISSING_MEMORY_LIMIT_KEY
+        messageOnFailure: Missing property object `limits.memory` - value should be within the accepted boundaries recommended by the organization
+      - identifier: CONTAINERS_MISSING_CPU_LIMIT_KEY
+        messageOnFailure: Missing property object `limits.cpu` - value should be within the accepted boundaries recommended by the organization
+  - name: Crossplane
+    rules:
+      - identifier: CUSTOM_CLUSTER_SIZE
+        messageOnFailure: Ensure correct cluster size is used [CUSTOM RULE]
+      - identifier: CUSTOM_CLUSTER_INSTANCES
+        messageOnFailure: Ensure only a limited number of instances are used [CUSTOM RULE]
+      - identifier: CUSTOM_CLUSTER_APPLIATIONS
+        messageOnFailure: Please have a look at our documentation for approved applications
+customRules:
+  - identifier: CUSTOM_CLUSTER_SIZE
+    name: Ensure correct cluster size is used [CUSTOM RULE]
+    defaultMessageOnFailure: Use only small or medium clusters 
+    schema:
+      properties:
+        specs:
+          properties:
+            size:
+              enum:
+                - g3.k3s.small
+                - g3.k3s.medium
+              required:
+                - size
+  - identifier: CUSTOM_CLUSTER_INSTANCES
+    name: Ensure only a limited number of instances are used [CUSTOM RULE]
+    defaultMessageOnFailure: Use only 2,3,4 instance sizes
+    schema:
+      properties:
+        specs:
+          properties:
+            instances:
+              enum:
+                - 2
+                - 3
+                - 4
+  - identifier: CUSTOM_CLUSTER_APPLIATIONS
+    name: Ensure correct environment labels are used [CUSTOM RULE]
+    defaultMessageOnFailure: Please have a look at our documentation for approved applications
+    schema:
+      properties:
+        specs:
+          properties:
+            applications:
+              enum:
+                - "OpenFaaS"
+                - "prometheus-operator"
+                - "istio:Istio v1.10.1"

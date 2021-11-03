@@ -1,0 +1,17 @@
+kind: CivoKubernetes
+apiVersion: cluster.civo.crossplane.io/v1alpha1
+metadata: 
+  name: second-crossplane
+spec:
+  name: second-crossplane
+  instances: 3
+  size: g3.k3s.small
+  applications: 
+    - "OpenFaaS"
+    - "prometheus-operator"
+    - "istio:Istio v1.10.1"
+  connectionDetails:
+    connectionSecretNamePrefix: "cluster-details"
+    connectionSecretNamespace: "default"
+  providerConfigRef:
+    name: civo-provider
