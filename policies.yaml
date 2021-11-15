@@ -49,11 +49,8 @@ policies:
         messageOnFailure: Ensure correct cluster size is used [CUSTOM RULE]
       - identifier: CUSTOM_CLUSTER_INSTANCES
         messageOnFailure: Ensure only a limited number of instances are used [CUSTOM RULE]
-      - identifier: CUSTOM_CLUSTER_APPLIATIONS
-        messageOnFailure: Please have a look at our documentation for approved applications
       - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
-        messageOnFailure: Please have a look at our documentation for approved applications
-
+        messageOnFailure: Please choose either staging, test, or prod environments
 customRules:
   - identifier: CUSTOM_CLUSTER_SIZE
     name: Ensure correct cluster size is used [CUSTOM RULE]
@@ -63,7 +60,6 @@ customRules:
         spec:
           properties:
             size:
-              
               enum:
                 - g3.k3s.small
                 - g3.k3s.medium
@@ -82,18 +78,6 @@ customRules:
                 - 2
                 - 3
                 - 4
-  - identifier: CUSTOM_CLUSTER_APPLIATIONS
-    name: Ensure correct environment labels are used [CUSTOM RULE]
-    defaultMessageOnFailure: Please have a look at our documentation for approved applications
-    schema:
-      properties:
-        spec:
-          properties:
-            applications:
-              enum:
-                - "OpenFaaS"
-                - "prometheus-operator"
-                - "istio:Istio v1.10.1"
   - identifier: CUSTOM_WORKLOAD_INCORRECT_ENVIRONMENT_LABELS
     name: Ensure correct environment labels are used [CUSTOM RULE]
     defaultMessageOnFailure: Use only approved environment labels (`prod`, `staging` and `test`)
